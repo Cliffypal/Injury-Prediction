@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Injury Risk Prediction</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .header {
+            background-color: #6c63ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            border-bottom: 5px solid #4a42d6;
+        }
+        .header h2 {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .header .powered-by {
+            font-size: 16px;
+            padding-right: 20px;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            margin-top: 100px; /* Adjusted margin for header space */
+            position: relative; /* To position the spinner */
+        }
+        .spinner {
+            border: 4px solid rgba(106, 90, 205, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #6c63ff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #6c63ff;
+        }
+        .form-control {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #6c63ff;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6c63ff, #4a42d6);
+            box-shadow: 0 4px 12px rgba(106, 90, 205, 0.3);
+            transition: background 0.3s, transform 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4a42d6, #6c63ff);
+            transform: translateY(-2px);
+        }
+        .row .col-md-6 {
+            margin-bottom: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            font-size: 16px;
+        }
+        /* Educational Resources Styles */
+        .resources-section {
+            margin-top: 40px;
+        }
+        .resources-title {
+            font-size: 24px;
+            color: #6c63ff;
+            margin-bottom: 20px;
+        }
+        .resources-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .resources-list li {
+            margin-bottom: 10px;
+        }
+        .resources-list a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
+        .resources-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Injury Risk Prediction</h2>
+        <div class="powered-by">Powered by DoneWell</div>
+    </div>
+
+    <div class="container">
+        <h1 class="text-center">Enter Player Details</h1>
+        <div id="loading" class="spinner" style="display: none;"></div>
+        <form action="/predict" method="POST" onsubmit="showSpinner()">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="player-age" class="form-label">Player Age</label>
+                    <input type="number" class="form-control" id="player-age" name="player-age" placeholder="Enter age" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="player-weight" class="form-label">Player Weight (kg)</label>
+                    <input type="number" class="form-control" id="player-weight" name="player-weight" placeholder="Enter weight" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="player-height" class="form-label">Player Height (cm)</label>
+                    <input type="number" class="form-control" id="player-height" name="player-height" placeholder="Enter height" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="previous-injuries" class="form-label">Previous Injuries</label>
+                    <input type="number" class="form-control" id="previous-injuries" name="previous-injuries" placeholder="Enter number of previous injuries" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="training-intensity" class="form-label">Training Intensity (1-10)</label>
+                    <input type="number" class="form-control" id="training-intensity" name="training-intensity" placeholder="Enter training intensity" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="recovery-time" class="form-label">Recovery Time (in days)</label>
+                    <input type="number" class="form-control" id="recovery-time" name="recovery-time" placeholder="Enter recovery time" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Predict Injury Risk</button>
+        </form>
+        <div class="result">{{ prediction_text }}</div>
+
+        <!-- Educational Resources Section -->
+        <div class="resources-section">
+            <h2 class="resources-title">Educational Resources</h2>
+            <ul class="resources-list">
+                <li><a href="https://www.acsm.org" target="_blank">American College of Sports Medicine</a> - Resources on exercise science and injury prevention.</li>
+                <li><a href="https://www.eatright.org" target="_blank">Academy of Nutrition and Dietetics</a> - Guidance on sports nutrition and healthy eating.</li>
+                <li><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6637068/" target="_blank">Injury Prevention Strategies in Sport</a> - A detailed research article on injury prevention methods.</li>
+                <li><a href="https://www.cdc.gov/injury/index.html" target="_blank">CDC Injury Center</a> - Information on injury prevention and control.</li>
+                <li><a href="https://www.verywellfit.com/exercise-injury-prevention-2705253" target="_blank">Exercise Injury Prevention Tips</a> - Practical tips for preventing injuries during workouts.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showSpinner() {
+            document.getElementById('loading').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
